@@ -1,5 +1,5 @@
 # netangels-zabbix-template
-Zabbix template for monitoring your balance and account status on netangels.ru hosting provider.
+Zabbix template for monitoring your balance and account status on https://netangels.ru/ hosting provider.
 
 Based on Netangels API: https://api.netangels.ru/panel/user.html
 
