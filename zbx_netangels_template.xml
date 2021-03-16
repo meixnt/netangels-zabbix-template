@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2021-03-16T20:16:19Z</date>
+    <groups>
+        <group>
+            <name>Templates</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Template Netangels User Info</template>
+            <name>Template Netangels User Info</name>
+            <description>Zabbix template for monitoring your balance and account status on netangels.ru hosting provider.&#13;
+&#13;
+Based on Netangels API: https://api.netangels.ru/panel/user.html</description>
+            <groups>
+                <group>
+                    <name>Templates</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>Balance</name>
+                </application>
+                <application>
+                    <name>Credentials</name>
+                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>Current balance {$NETANGELS_USERNAME}</name>
+                    <type>DEPENDENT</type>
+                    <key>current.balance</key>
+                    <delay>0</delay>
+                    <history>30d</history>
+                    <trends>90d</trends>
+                    <value_type>FLOAT</value_type>
+                    <units>!₽</units>
+                    <applications>
+                        <application>
+                            <name>Balance</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.objects[0].balance</params>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>netangels.userinfo[{$NETANGELS_USERNAME},{$NETANGELS_PASSWORD}]</key>
+                    </master_item>
+                    <triggers>
+                        <trigger>
+                            <expression>{last()}&lt;{$NETANGELS_CRITICAL_BALANCE}</expression>
+                            <name>Balance on netangels.ru less {$NETANGELS_CRITICAL_BALANCE} ₽</name>
+                            <opdata>Netangels critical balance</opdata>
+                            <url>https://panel.netangels.ru/</url>
+                            <priority>HIGH</priority>
+                        </trigger>
+                        <trigger>
+                            <expression>{last()}&lt;{$NETANGELS_LOW_BALANCE}</expression>
+                            <name>Current balance on netangels.ru less {$NETANGELS_LOW_BALANCE} ₽</name>
+                            <opdata>Netangels low balance</opdata>
+                            <url>https://panel.netangels.ru/</url>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>Admin E-mail</name>
+                    <type>DEPENDENT</type>
+                    <key>email.admin</key>
+                    <delay>0</delay>
+                    <history>7d</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>Credentials</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.objects[0].emails_adm</params>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>netangels.userinfo[{$NETANGELS_USERNAME},{$NETANGELS_PASSWORD}]</key>
+                    </master_item>
+                    <triggers>
+                        <trigger>
+                            <expression>{diff()}=1</expression>
+                            <recovery_mode>NONE</recovery_mode>
+                            <name>Administrator e-mail for {$NETANGELS_USERNAME} on netangels.ru was changed!</name>
+                            <opdata>Change administrator e-mail</opdata>
+                            <url>https://panel.netangels.ru/</url>
+                            <priority>AVERAGE</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>Technical E-mail</name>
+                    <type>DEPENDENT</type>
+                    <key>email.tech</key>
+                    <delay>0</delay>
+                    <history>7d</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>Credentials</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.objects[0].emails_tech</params>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>netangels.userinfo[{$NETANGELS_USERNAME},{$NETANGELS_PASSWORD}]</key>
+                    </master_item>
+                    <triggers>
+                        <trigger>
+                            <expression>{diff()}=1</expression>
+                            <recovery_mode>NONE</recovery_mode>
+                            <name>Technical e-mail for {$NETANGELS_USERNAME} on netangels.ru was changed!</name>
+                            <opdata>Change techical e-mail</opdata>
+                            <url>https://panel.netangels.ru/</url>
+                            <priority>AVERAGE</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>Netangels User Info</name>
+                    <key>netangels.userinfo[{$NETANGELS_USERNAME},{$NETANGELS_PASSWORD}]</key>
+                    <delay>30m</delay>
+                    <history>0</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                </item>
+                <item>
+                    <name>Account state</name>
+                    <type>DEPENDENT</type>
+                    <key>state</key>
+                    <delay>0</delay>
+                    <history>7d</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <description>Account state. &#13;
+Can be &quot;enabled&quot;, &quot;disabled&quot;, &quot;test&quot;, &quot;waiting&quot; and &quot;new&quot;. &#13;
+Additionally can be &quot;empty&quot; if JSONPath preprocessing failed. This is needed for detection empty reply from userparameter.</description>
+                    <applications>
+                        <application>
+                            <name>Balance</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <params>$.objects[0].state</params>
+                            <error_handler>CUSTOM_VALUE</error_handler>
+                            <error_handler_params>empty</error_handler_params>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>netangels.userinfo[{$NETANGELS_USERNAME},{$NETANGELS_PASSWORD}]</key>
+                    </master_item>
+                    <triggers>
+                        <trigger>
+                            <expression>{str(disabled)}=1</expression>
+                            <name>Account {$NETANGELS_USERNAME} on netangels.ru disabled</name>
+                            <opdata>Account status is &quot;disabled&quot;</opdata>
+                            <url>https://panel.netangels.ru/</url>
+                            <priority>HIGH</priority>
+                        </trigger>
+                        <trigger>
+                            <expression>{str(enabled)}=0 and {str(disabled)}=0 and {str(empty)}=0</expression>
+                            <name>Account {$NETANGELS_USERNAME} on netangels.ru has abnormal status</name>
+                            <opdata>Account status not &quot;enabled&quot; or &quot;disabled&quot;</opdata>
+                            <url>https://panel.netangels.ru/</url>
+                            <priority>INFO</priority>
+                        </trigger>
+                        <trigger>
+                            <expression>{str(empty)}=1</expression>
+                            <name>Netangels return empty reply for user {$NETANGELS_USERNAME}</name>
+                            <opdata>Netangels empty reply</opdata>
+                            <url>https://panel.netangels.ru/</url>
+                            <priority>HIGH</priority>
+                            <description>Netangels return empty reply. This may indicate incorrect credentials or the unavailability of the resource.</description>
+                        </trigger>
+                    </triggers>
+                </item>
+            </items>
+            <macros>
+                <macro>
+                    <macro>{$NETANGELS_CRITICAL_BALANCE}</macro>
+                    <value>2500</value>
+                </macro>
+                <macro>
+                    <macro>{$NETANGELS_LOW_BALANCE}</macro>
+                    <value>5000</value>
+                </macro>
+                <macro>
+                    <macro>{$NETANGELS_PASSWORD}</macro>
+                </macro>
+                <macro>
+                    <macro>{$NETANGELS_USERNAME}</macro>
+                </macro>
+            </macros>
+        </template>
+    </templates>
+    <graphs>
+        <graph>
+            <name>Netangels balance</name>
+            <show_work_period>NO</show_work_period>
+            <ymin_type_1>FIXED</ymin_type_1>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <drawtype>FILLED_REGION</drawtype>
+                    <color>0080FF</color>
+                    <yaxisside>RIGHT</yaxisside>
+                    <calc_fnc>ALL</calc_fnc>
+                    <item>
+                        <host>Template Netangels User Info</host>
+                        <key>current.balance</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+    </graphs>
+</zabbix_export>
