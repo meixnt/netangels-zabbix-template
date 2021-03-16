@@ -13,10 +13,13 @@ This template was tested on:
 
 ## Setup
 
- * copy `netangels.userinfo.conf` to `/etc/zabbix/zabbix_agentd.d`
+ * copy `netangels.userinfo.conf` to `/etc/zabbix/zabbix_agentd.d` 
  * restart zabbix-agent
  * import `zbx_netangels_teplate.xml` to zabbix server
+ * add this template to host
+ * add mascros to host
 
+## Macros
 
 ## Data
 #### Account state. 
