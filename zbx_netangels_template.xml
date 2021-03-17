@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2021-03-16T20:16:19Z</date>
+    <date>2021-03-17T10:27:18Z</date>
     <groups>
         <group>
             <name>Templates</name>
@@ -13,7 +13,11 @@
             <name>Template Netangels User Info</name>
             <description>Zabbix template for monitoring your balance and account status on netangels.ru hosting provider.&#13;
 &#13;
-Based on Netangels API: https://api.netangels.ru/panel/user.html</description>
+Based on Netangels API: https://api.netangels.ru/panel/user.html&#13;
+Requires adding userparameter for zabbix-agent:&#13;
+UserParameter=netangels.userinfo[*],curl -s -X GET -H &quot;Accept: application/json&quot; -u &quot;$1:$2&quot; 'https://panel.netangels.ru/api/v1/user/'&#13;
+&#13;
+Github: https://github.com/meixnt/netangels-zabbix-template</description>
             <groups>
                 <group>
                     <name>Templates</name>
@@ -29,7 +33,7 @@ Based on Netangels API: https://api.netangels.ru/panel/user.html</description>
             </applications>
             <items>
                 <item>
-                    <name>Current balance {$NETANGELS_USERNAME}</name>
+                    <name>Current balance {$NETANGELS.USERNAME}</name>
                     <type>DEPENDENT</type>
                     <key>current.balance</key>
                     <delay>0</delay>
@@ -37,6 +41,7 @@ Based on Netangels API: https://api.netangels.ru/panel/user.html</description>
                     <trends>90d</trends>
                     <value_type>FLOAT</value_type>
                     <units>!₽</units>
+                    <description>Current account balance</description>
                     <applications>
                         <application>
                             <name>Balance</name>
@@ -49,22 +54,34 @@ Based on Netangels API: https://api.netangels.ru/panel/user.html</description>
                         </step>
                     </preprocessing>
                     <master_item>
-                        <key>netangels.userinfo[{$NETANGELS_USERNAME},{$NETANGELS_PASSWORD}]</key>
+                        <key>netangels.userinfo[{$NETANGELS.USERNAME},{$NETANGELS.PASSWORD}]</key>
                     </master_item>
                     <triggers>
                         <trigger>
-                            <expression>{last()}&lt;{$NETANGELS_CRITICAL_BALANCE}</expression>
-                            <name>Balance on netangels.ru less {$NETANGELS_CRITICAL_BALANCE} ₽</name>
-                            <opdata>Netangels critical balance</opdata>
-                            <url>https://panel.netangels.ru/</url>
-                            <priority>HIGH</priority>
+                            <expression>{change()}&lt;&quot;-{$NETANGELS.BALANCE.DECREASE}&quot;</expression>
+                            <recovery_mode>NONE</recovery_mode>
+                            <name>Balance {$NETANGELS.USERNAME} on netangels.ru suddenly decrease more than {$NETANGELS.BALANCE.DECREASE} ₽</name>
+                            <opdata>Netangels balance suddenly changed</opdata>
+                            <url>{$NETANGELS.PANEL.URL}</url>
+                            <priority>AVERAGE</priority>
+                            <description>Balance user {$NETANGELS.USERNAME} on netangels.ru decrease more than {$NETANGELS.BALANCE.DECREASE} ₽. This could be a scheduled payment, such as automatic domain name renewal. Or not. Worth checking out.</description>
+                            <manual_close>YES</manual_close>
                         </trigger>
                         <trigger>
-                            <expression>{last()}&lt;{$NETANGELS_LOW_BALANCE}</expression>
-                            <name>Current balance on netangels.ru less {$NETANGELS_LOW_BALANCE} ₽</name>
+                            <expression>{last()}&lt;{$NETANGELS.BALANCE.CRITICAL}</expression>
+                            <name>Critical current balance {$NETANGELS.USERNAME} on netangels.ru less {$NETANGELS.BALANCE.CRITICAL} ₽</name>
+                            <opdata>Netangels critical balance</opdata>
+                            <url>{$NETANGELS.PANEL.URL}</url>
+                            <priority>HIGH</priority>
+                            <description>Critical current balance {$NETANGELS.USERNAME} on netangels.ru less {$NETANGELS.BALANCE.CRITICAL} ₽</description>
+                        </trigger>
+                        <trigger>
+                            <expression>{last()}&lt;{$NETANGELS.BALANCE.LOW}</expression>
+                            <name>Current balance {$NETANGELS.USERNAME} on netangels.ru less {$NETANGELS.BALANCE.LOW} ₽</name>
                             <opdata>Netangels low balance</opdata>
-                            <url>https://panel.netangels.ru/</url>
+                            <url>{$NETANGELS.PANEL.URL}</url>
                             <priority>WARNING</priority>
+                            <description>Current balance {$NETANGELS.USERNAME} on netangels.ru less {$NETANGELS.BALANCE.LOW} ₽</description>
                         </trigger>
                     </triggers>
                 </item>
@@ -76,6 +93,7 @@ Based on Netangels API: https://api.netangels.ru/panel/user.html</description>
                     <history>7d</history>
                     <trends>0</trends>
                     <value_type>TEXT</value_type>
+                    <description>Administrative mailboxes. There may be several</description>
                     <applications>
                         <application>
                             <name>Credentials</name>
@@ -88,16 +106,17 @@ Based on Netangels API: https://api.netangels.ru/panel/user.html</description>
                         </step>
                     </preprocessing>
                     <master_item>
-                        <key>netangels.userinfo[{$NETANGELS_USERNAME},{$NETANGELS_PASSWORD}]</key>
+                        <key>netangels.userinfo[{$NETANGELS.USERNAME},{$NETANGELS.PASSWORD}]</key>
                     </master_item>
                     <triggers>
                         <trigger>
                             <expression>{diff()}=1</expression>
                             <recovery_mode>NONE</recovery_mode>
-                            <name>Administrator e-mail for {$NETANGELS_USERNAME} on netangels.ru was changed!</name>
+                            <name>Administrator e-mail for {$NETANGELS.USERNAME} on netangels.ru was changed!</name>
                             <opdata>Change administrator e-mail</opdata>
-                            <url>https://panel.netangels.ru/</url>
+                            <url>{$NETANGELS.PANEL.URL}</url>
                             <priority>AVERAGE</priority>
+                            <description>Administrator e-mail for {$NETANGELS.USERNAME} on netangels.ru was changed.</description>
                             <manual_close>YES</manual_close>
                         </trigger>
                     </triggers>
@@ -110,6 +129,7 @@ Based on Netangels API: https://api.netangels.ru/panel/user.html</description>
                     <history>7d</history>
                     <trends>0</trends>
                     <value_type>TEXT</value_type>
+                    <description>Technical mailboxes. There may be several</description>
                     <applications>
                         <application>
                             <name>Credentials</name>
@@ -122,27 +142,28 @@ Based on Netangels API: https://api.netangels.ru/panel/user.html</description>
                         </step>
                     </preprocessing>
                     <master_item>
-                        <key>netangels.userinfo[{$NETANGELS_USERNAME},{$NETANGELS_PASSWORD}]</key>
+                        <key>netangels.userinfo[{$NETANGELS.USERNAME},{$NETANGELS.PASSWORD}]</key>
                     </master_item>
                     <triggers>
                         <trigger>
                             <expression>{diff()}=1</expression>
                             <recovery_mode>NONE</recovery_mode>
-                            <name>Technical e-mail for {$NETANGELS_USERNAME} on netangels.ru was changed!</name>
+                            <name>Technical e-mail for {$NETANGELS.USERNAME} on netangels.ru was changed!</name>
                             <opdata>Change techical e-mail</opdata>
-                            <url>https://panel.netangels.ru/</url>
+                            <url>{$NETANGELS.PANEL.URL}</url>
                             <priority>AVERAGE</priority>
+                            <description>Technical e-mail for {$NETANGELS.USERNAME} on netangels.ru was changed!</description>
                             <manual_close>YES</manual_close>
                         </trigger>
                     </triggers>
                 </item>
                 <item>
                     <name>Netangels User Info</name>
-                    <key>netangels.userinfo[{$NETANGELS_USERNAME},{$NETANGELS_PASSWORD}]</key>
-                    <delay>30m</delay>
+                    <key>netangels.userinfo[{$NETANGELS.USERNAME},{$NETANGELS.PASSWORD}]</key>
                     <history>0</history>
                     <trends>0</trends>
                     <value_type>TEXT</value_type>
+                    <description>Basic response from the netangels. Must be JSON.</description>
                 </item>
                 <item>
                     <name>Account state</name>
@@ -169,48 +190,65 @@ Additionally can be &quot;empty&quot; if JSONPath preprocessing failed. This is 
                         </step>
                     </preprocessing>
                     <master_item>
-                        <key>netangels.userinfo[{$NETANGELS_USERNAME},{$NETANGELS_PASSWORD}]</key>
+                        <key>netangels.userinfo[{$NETANGELS.USERNAME},{$NETANGELS.PASSWORD}]</key>
                     </master_item>
                     <triggers>
                         <trigger>
                             <expression>{str(disabled)}=1</expression>
-                            <name>Account {$NETANGELS_USERNAME} on netangels.ru disabled</name>
+                            <name>Account {$NETANGELS.USERNAME} on netangels.ru disabled</name>
                             <opdata>Account status is &quot;disabled&quot;</opdata>
-                            <url>https://panel.netangels.ru/</url>
-                            <priority>HIGH</priority>
+                            <url>{$NETANGELS.PANEL.URL}</url>
+                            <priority>DISASTER</priority>
+                            <description>Account {$NETANGELS.USERNAME} on netangels.ru has status &quot;disabled&quot;. This could be a financial blocking.</description>
                         </trigger>
                         <trigger>
                             <expression>{str(enabled)}=0 and {str(disabled)}=0 and {str(empty)}=0</expression>
-                            <name>Account {$NETANGELS_USERNAME} on netangels.ru has abnormal status</name>
+                            <name>Account {$NETANGELS.USERNAME} on netangels.ru has abnormal status</name>
                             <opdata>Account status not &quot;enabled&quot; or &quot;disabled&quot;</opdata>
-                            <url>https://panel.netangels.ru/</url>
+                            <url>{$NETANGELS.PANEL.URL}</url>
                             <priority>INFO</priority>
+                            <description>Netangels account {$NETANGELS.USERNAME} has abnormal status, not &quot;enabled&quot; or &quot;disabled&quot;. This is probably not a critical issue.</description>
                         </trigger>
                         <trigger>
                             <expression>{str(empty)}=1</expression>
-                            <name>Netangels return empty reply for user {$NETANGELS_USERNAME}</name>
-                            <opdata>Netangels empty reply</opdata>
-                            <url>https://panel.netangels.ru/</url>
+                            <name>Netangels return empty or incorrect reply for user {$NETANGELS.USERNAME}</name>
+                            <opdata>Empty reply or incorrect</opdata>
+                            <url>{$NETANGELS.PANEL.URL}</url>
                             <priority>HIGH</priority>
-                            <description>Netangels return empty reply. This may indicate incorrect credentials or the unavailability of the resource.</description>
+                            <description>Netangels return empty or incorrect reply for user {$NETANGELS.USERNAME}. This may indicate incorrect credentials or the unavailability of the resource.</description>
                         </trigger>
                     </triggers>
                 </item>
             </items>
             <macros>
                 <macro>
-                    <macro>{$NETANGELS_CRITICAL_BALANCE}</macro>
+                    <macro>{$NETANGELS.BALANCE.CRITICAL}</macro>
                     <value>2500</value>
+                    <description>Critical balance value.</description>
                 </macro>
                 <macro>
-                    <macro>{$NETANGELS_LOW_BALANCE}</macro>
+                    <macro>{$NETANGELS.BALANCE.DECREASE}</macro>
+                    <value>100</value>
+                    <description>Decreasing the balance by more than this value between two requests will trigger alert.</description>
+                </macro>
+                <macro>
+                    <macro>{$NETANGELS.BALANCE.LOW}</macro>
                     <value>5000</value>
+                    <description>Low balance value.</description>
                 </macro>
                 <macro>
-                    <macro>{$NETANGELS_PASSWORD}</macro>
+                    <macro>{$NETANGELS.PANEL.URL}</macro>
+                    <value>https://panel.netangels.ru/</value>
+                    <description>Control panel URL. There is no need to change the default.</description>
                 </macro>
                 <macro>
-                    <macro>{$NETANGELS_USERNAME}</macro>
+                    <macro>{$NETANGELS.PASSWORD}</macro>
+                    <type>SECRET_TEXT</type>
+                    <description>Your password. Required.</description>
+                </macro>
+                <macro>
+                    <macro>{$NETANGELS.USERNAME}</macro>
+                    <description>Your username. Required.</description>
                 </macro>
             </macros>
         </template>
@@ -218,13 +256,15 @@ Additionally can be &quot;empty&quot; if JSONPath preprocessing failed. This is 
     <graphs>
         <graph>
             <name>Netangels balance</name>
+            <width>600</width>
+            <height>300</height>
             <show_work_period>NO</show_work_period>
             <ymin_type_1>FIXED</ymin_type_1>
             <graph_items>
                 <graph_item>
                     <sortorder>1</sortorder>
                     <drawtype>FILLED_REGION</drawtype>
-                    <color>0080FF</color>
+                    <color>B3E5FC</color>
                     <yaxisside>RIGHT</yaxisside>
                     <calc_fnc>ALL</calc_fnc>
                     <item>
