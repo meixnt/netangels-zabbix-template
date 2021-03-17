@@ -23,7 +23,7 @@ This template was tested on:
 
 ## Template macros
 `{$NETANGELS.USERNAME}` -- your username. Requred.  
-`{$NETANGELS.PASSWORD}` -- your password. Requred.  
+`{$NETANGELS.PASSWORD}` -- your API-key or password. Requred.  
 
 `{$NETANGELS.BALANCE.CRITICAL}` -- Critical balance value.  
 `{$NETANGELS.BALANCE.LOW}` -- Low balance value.  
