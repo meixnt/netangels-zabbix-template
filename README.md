@@ -50,3 +50,4 @@ Administrative mailboxes. There may be several
 Technical mailboxes. There may be several
 
 ## Other
+A little more information about the template can be found on https://learningtofly.ru/zabbix-template-netangels/ (russian language)
