@@ -1,5 +1,7 @@
 # Netangels template for Zabbix
 
+Read this in other languages: [English](README.md), [Русский](README.ru-RU.md).
+
 ## Overview
 Zabbix template for monitoring your balance and account status on https://netangels.ru/ hosting provider.
 
