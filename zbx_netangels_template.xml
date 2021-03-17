@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2021-03-17T10:27:18Z</date>
+    <date>2021-03-17T10:36:34Z</date>
     <groups>
         <group>
             <name>Templates</name>
@@ -160,6 +160,7 @@ Github: https://github.com/meixnt/netangels-zabbix-template</description>
                 <item>
                     <name>Netangels User Info</name>
                     <key>netangels.userinfo[{$NETANGELS.USERNAME},{$NETANGELS.PASSWORD}]</key>
+                    <delay>30m</delay>
                     <history>0</history>
                     <trends>0</trends>
                     <value_type>TEXT</value_type>
