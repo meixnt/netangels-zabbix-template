@@ -31,22 +31,22 @@
 
 `{$NETANGELS.PANEL.URL}` -- URL панели управления. По умолчанию менять не требуется.  
 
-## Data items
+## Элементы данных
 
 #### Netangels User Info
-Basic response from the Netangels. Must be JSON.
+Базовый элемент данных для получаемого от Netangels ответа. Должен быть в JSON.
 
 #### Current balance
-Just current account balance.
+Значение текущего баланса.
 
 #### Account state. 
-Can be "enabled", "disabled", "test", "waiting" and "new". 
-Additionally can be "empty" if JSONPath preprocessing failed. This is needed for detection empty reply from userparameter.
+Может быть "enabled", "disabled", "test", "waiting" или "new". 
+Также может быть "empty" если предобработка JSONPath завершилась неудачно. Такой подход позволяет определить, что получены некорректные данные.
 
 #### Admin E-mail
-Administrative mailboxes. There may be several
+Административные почтовые ящики, привязанные к панели. Может быть несколько.
 
 #### Technical E-mail
-Technical mailboxes. There may be several
+Технические почтовые ящики, привязанные к панели. Может быть несколько.
 
-## Other
+## Прочее
