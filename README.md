@@ -1,4 +1,4 @@
-# netangels-zabbix-template
+# Netangels template for Zabbix
 
 ## Overview
 Zabbix template for monitoring your balance and account status on https://netangels.ru/ hosting provider.
