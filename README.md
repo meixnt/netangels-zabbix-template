@@ -29,10 +29,22 @@ This template was tested on:
 
 `{$NETANGELS.PANEL.URL}` -- Control panel URL. There is no need to change the default.
 
-## Data
+## Data items
+
+#### Netangels User Info
+Basic response from the Netangels. Must be JSON.
+
+#### Current balance
+Just current account balance.
+
 #### Account state. 
 Can be "enabled", "disabled", "test", "waiting" and "new". 
 Additionally can be "empty" if JSONPath preprocessing failed. This is needed for detection empty reply from userparameter.
 
+#### Admin E-mail
+Administrative mailboxes. There may be several
+
+#### Technical E-mail
+Technical mailboxes. There may be several
 
 ## Other
