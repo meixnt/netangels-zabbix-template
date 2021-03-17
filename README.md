@@ -19,7 +19,15 @@ This template was tested on:
  * add this template to host
  * add mascros to host
 
-## Macros
+## Template macros
+`{$NETANGELS.USERNAME}` -- your username. Requred. 
+`{$NETANGELS.PASSWORD}` -- your password. Requred. 
+
+`{$NETANGELS.BALANCE.CRITICAL}` -- Critical balance value.
+`{$NETANGELS.BALANCE.LOW}` -- Low balance value.
+`{$NETANGELS.BALANCE.DECREASE}` -- Decreasing the balance by more than this value between two requests will trigger alert.
+
+`{$NETANGELS.PANEL.URL}` -- Control panel URL. There is no need to change the default.
 
 ## Data
 #### Account state. 
